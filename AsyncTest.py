@@ -5,7 +5,7 @@ import aiohttp
 start_time = time.time()
 
 async def get_pokemon(session, url, number):
-    ''' xxx  '''
+    """ xxx  """
     try:
         get_url = f'{url}/{number}' # if (number % 2) == 0 else ""
         async with session.get(get_url) as resp:
@@ -17,10 +17,10 @@ async def get_pokemon(session, url, number):
         return f"#{number} - ERROR - {type(ex)} - {ex.args}"
 
 async def main():
-    ''' xxx  '''
+    """ xxxx """
     url = 'https://pokeapi.co/api/v2/pokemon'
 
-    client_timeout = aiohttp.ClientTimeout(total=1)
+    client_timeout = aiohttp.ClientTimeout(total=0.5)
     async with aiohttp.ClientSession(timeout=client_timeout) as session:
 
         tasks = []
