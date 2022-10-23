@@ -7,7 +7,7 @@ start_time = time.time()
 async def get_pokemon(session, url, number):
     ''' xxx  '''
     try:
-        get_url = f'{url}/{number}' # if (number % 2) == 0 else ""
+        get_url = f'{url}/{number}' if (number % 2) == 0 else ""
         async with session.get(get_url) as resp:
             pokemon = await resp.json()
             return f"#{number} - SUCCESS - {pokemon['name']}"
