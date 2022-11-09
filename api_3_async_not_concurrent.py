@@ -53,12 +53,12 @@ async def get_names (conf :Conf) -> list[str]:
         connector=aiohttp.TCPConnector(enable_cleanup_closed=True),
         raise_for_status=True
     ) as session:
-        for i in range(1, conf.workload_limit+1):
+        for entity_id in range(1, conf.workload_limit+1):
             outcome :Outcome = await get_name (
                 session=session,
-                from_url=f"{base_url}{i}",
+                from_url=f"{base_url}{entity_id}",
                 #from_url=f"{base_url}{i}" if (i % 2) != 0 else 'https://httpbin.org/status/504',
-                entity_id = i
+                entity_id = entity_id
             )
             if outcome.status == 'Success':
                 v_names.append(f"#{outcome.entity_id} - {outcome.result}")

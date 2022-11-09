@@ -54,11 +54,12 @@ def get_names (conf :Conf) -> list[str]:
     v_names = []
     base_url = f"{conf.site_url}{conf.path_url}"
     with requests.Session() as session:
-        for i in range(1, conf.workload_limit+1):
+        for entity_id in range(1, conf.workload_limit+1):
             outcome :Outcome = get_name (
                 session=session,
-                from_url=f"{base_url}{i}", #if (i % 2) != 0 else 'https://httpbin.org/status/504',
-                entity_id = i,
+                from_url=f"{base_url}{entity_id}",
+                #if (i % 2) != 0 else 'https://httpbin.org/status/504',
+                entity_id = entity_id,
                 timeout=conf.timeout
             )
             if outcome.status == 'Success':
