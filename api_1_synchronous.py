@@ -70,7 +70,7 @@ def main() -> None:
     conf = Conf (
         site_url = 'https://pokeapi.co',
         path_url= '/api/v2/pokemon/', # +ve integer path param is added to this path
-        workload_limit =150,
+        workload_limit =50,
         timeout = 1
         # timeout can be a Tuple as in (ConnectTimeout :float, readTimeout :float) both in seconds
     )

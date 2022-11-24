@@ -72,8 +72,8 @@ async def main() -> None:
     conf = Conf (
         site_url = 'https://pokeapi.co',
         path_url= '/api/v2/pokemon/', # +ve integer path param is added to this path
-        workload_limit =150,
-        timeout = 1 # Timeout in seconds for connection + read
+        workload_limit = 100,
+        timeout = 2 # Timeout in seconds for connection + read
     )
     time1 = time.time()
     names = await get_names(conf=conf)

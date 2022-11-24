@@ -46,15 +46,15 @@ async def get_name(
 
 async def get_names(conf :Conf) -> list[str]:
     ''' Get names  '''
-    v_names = []
     base_url = f"{conf.site_url}{conf.path_url}"
+    workload_items = list(range(1,conf.workload_limit+1))
     async with aiohttp.ClientSession (
         timeout=aiohttp.ClientTimeout(total=conf.timeout),
         connector=aiohttp.TCPConnector(enable_cleanup_closed=True),
         raise_for_status=True
     ) as session:
         tasks = []
-        for entity_id in range(1, conf.workload_limit+1):
+        for entity_id in workload_items:
             # Below marks the coroutine as Ready for Running
             task = asyncio.create_task (
                 get_name (
@@ -68,8 +68,11 @@ async def get_names(conf :Conf) -> list[str]:
             task.add_done_callback(tasks.remove)
         # All tasks started
         # Wait for all tasks to complete before returning results
+        print ("All tasks submitted")
         outcomes :list[Outcome] = await asyncio.gather(*tasks)
+        print ("All tasks completed")
     #end with aiohttp.ClientSession
+    v_names = []
     for outcome in outcomes:
         if outcome.status == 'Success':
             v_names.append(f"#{outcome.entity_id} - {outcome.result}")
@@ -82,8 +85,8 @@ async def main() -> None:
     conf = Conf (
         site_url = 'https://pokeapi.co',
         path_url= '/api/v2/pokemon/', # +ve integer path param is added to this path
-        workload_limit =500,
-        timeout = 2 # Timeout in seconds for connection + read
+        workload_limit = 200,
+        timeout = 3 # Timeout in seconds for connection + read
     )
     time1 = time.time()
     names = await get_names(conf=conf)
@@ -91,6 +94,9 @@ async def main() -> None:
     print (f"Asynchronous Concurrent Elapsed Time: {time2 - time1} seconds",
             f"for retrieval of {len(names)} names"
     )
+    for name in names:
+        print (name)
+    #end for
     return
 
 if __name__ == "__main__":

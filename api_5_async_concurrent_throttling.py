@@ -4,20 +4,24 @@ from collections import namedtuple
 import asyncio
 import aiohttp
 
-Outcome = namedtuple('Outcome', 'worker_num entity_id status result')
+Outcome = namedtuple('Outcome', 'entity_id status result worker_num')
 Conf = namedtuple ('Conf', 'site_url, path_url, workload_limit, timeout, workers_count')
+
+def outcome_sortkey (outcome :Outcome):
+    ''' return sort key to use for sorting oucomes '''
+    return outcome.entity_id
 
 def show_outcome(outcome :Outcome ) -> None:
     ''' Show outcome '''
     print (
-        f"Worker #{outcome.worker_num} -",
-        f"Entity #{outcome.entity_id} - {outcome.status} - {outcome.result}"
+        f"Entity #{outcome.entity_id} - {outcome.status} - {outcome.result}",
+        f" - Worker #{outcome.worker_num}"
     )
 
 async def run_worker (
     worker_num :int,
     workload_items :list[int],
-    names: list[str],
+    outcomes: list[Outcome],
     session :aiohttp.ClientSession,
     base_url :str
 ) -> None:
@@ -28,19 +32,17 @@ async def run_worker (
             worker_num = worker_num,
             session=session,
             from_url=f"{base_url}{entity_id}",
-            #from_url=f"{base_url}{i}" if (i % 2) != 0 else 'https://httpbin.org/status/504',
+            #from_url=f"{base_url}{entity_id}" if (entity_id % 2) != 0 else 'https://httpbin.org/status/504',
             entity_id = entity_id
         )
-        if outcome.status == 'Success':
-            names.append(f"#{outcome.entity_id} - {outcome.result}")
-        #end if
+        outcomes.append(outcome)
     #end while
 
 async def get_name(
-    worker_num :int,
     session :aiohttp.ClientSession,
     from_url :str,
-    entity_id :int
+    entity_id :int,
+    worker_num :int
 ) -> Outcome:
     ''' Get name  '''
     try:
@@ -66,13 +68,13 @@ async def get_name(
         status = 'Exception'
         result = str(type(ex))
     #end try - except
-    outcome = Outcome(worker_num=worker_num,entity_id=entity_id, status=status, result=result)
+    outcome = Outcome(entity_id=entity_id, status=status, result=result, worker_num=worker_num)
     show_outcome (outcome)
     return outcome
 
 async def get_names(conf :Conf) -> list[str]:
     ''' Get names  '''
-    v_names = []
+    outcomes :list[Outcome] = []
     base_url = f"{conf.site_url}{conf.path_url}"
     workload_items = list(range(1,conf.workload_limit+1))
     async with aiohttp.ClientSession (
@@ -87,7 +89,7 @@ async def get_names(conf :Conf) -> list[str]:
                 run_worker (
                     worker_num=i,
                     workload_items = workload_items,
-                    names = v_names,
+                    outcomes = outcomes,
                     session = session,
                     base_url=base_url
                 ),
@@ -99,6 +101,13 @@ async def get_names(conf :Conf) -> list[str]:
         # Wait for all tasks to complete before returning results
         _ = await asyncio.gather(*tasks)
     #end with aiohttp.ClientSession
+    outcomes.sort(reverse=False, key=outcome_sortkey)
+    v_names = []
+    for outcome in outcomes:
+        if outcome.status == 'Success':
+            v_names.append(f"#{outcome.entity_id} - {outcome.result}")
+        #end if
+    #end for
     return v_names
 
 async def main() -> None:
@@ -106,8 +115,8 @@ async def main() -> None:
     conf = Conf (
         site_url = 'https://pokeapi.co',
         path_url= '/api/v2/pokemon/', # +ve integer path param is added to this path
-        workload_limit =500,
-        timeout = 2, # Timeout in seconds for connection + read
+        workload_limit = 200,
+        timeout = 0.1, # Timeout in seconds for connection + read
         workers_count = 100
     )
     time1 = time.time()
@@ -116,6 +125,9 @@ async def main() -> None:
     print (f"Asynchronous Concurrent with Throttling Elapsed Time: {time2 - time1} seconds",
             f"for retrieval of {len(names)} names"
     )
+    for name in names:
+        print (name)
+    #end for
     return
 
 if __name__ == "__main__":
