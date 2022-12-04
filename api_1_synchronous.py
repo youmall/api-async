@@ -73,7 +73,8 @@ if __name__ == "__main__":
     time2 = time.time()
     print ("All Get Entities completed")
     outcomes_success = [ outcome for outcome in outcomes if outcome.status=='Success']
-    _ = [print (f"#{outcome.entity_id} - {outcome.result}") for outcome in outcomes_success]
+    for outcome in outcomes_success:
+        print (f"#{outcome.entity_id} - {outcome.result}")
     print (f"Synchronous Exec w/o Session Elapsed Time: {time2 - time1} seconds"
             ,f"for successful retrieval of {len(outcomes_success)} entities"
     )
