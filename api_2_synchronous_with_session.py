@@ -49,7 +49,7 @@ def get_entities () -> list[Outcome]:
         site_url = 'https://pokeapi.co'
         ,path_url= '/api/v2/pokemon/' # +ve integer path param is added to this path
         ,workload_limit = 50
-        ,timeout = 1
+        ,timeout = 2
         # timeout can be a Tuple as in (ConnectTimeout :float, readTimeout :float) both in seconds
     )
     base_url = f"{conf.site_url}{conf.path_url}"
@@ -76,8 +76,8 @@ if __name__ == "__main__":
     time2 = time.time()
     print ("All Get Entities completed")
     outcomes_success = [ outcome for outcome in outcomes if outcome.status=='Success']
-    for outcome in outcomes_success:
-        print (f"#{outcome.entity_id} - {outcome.result}")
+    for os in outcomes_success:
+        print (f"#{os.entity_id} - {os.result}")
     print (f"Synchronous Exec with Session Elapsed Time: {time2 - time1} seconds"
             ,f"for successful retrieval of {len(outcomes_success)} entities"
     )

@@ -63,8 +63,6 @@ async def aget_entities(conf :Conf) -> list[Outcome]:
                 )
             )
             tasks.append(task)
-            #await asyncio.sleep(0.5)
-            #Uncomment above if you want to see each get_entity instance start its execution
         #end for
         # Here, all tasks have been submitted for execution.
         # Await Gather below waits for completion of all tasks submitted,
@@ -81,7 +79,7 @@ def get_entities () -> list[Outcome]:
         site_url = 'https://pokeapi.co'
         ,path_url= '/api/v2/pokemon/' # +ve integer path param is added to this path
         ,workload_limit = 50
-        ,timeout = 1 # Timeout in seconds for connection + read
+        ,timeout = 2 # Timeout in seconds for connection + read
     )
     return asyncio.run (aget_entities(conf))
 
@@ -91,8 +89,8 @@ if __name__ == "__main__":
     time2 = time.time()
     print ("All Get Entities completed")
     outcomes_success = [ outcome for outcome in outcomes if outcome.status=='Success']
-    for outcome in outcomes_success:
-        print (f"#{outcome.entity_id} - {outcome.result}")
+    for os in outcomes_success:
+        print (f"#{os.entity_id} - {os.result}")
     print (f"Asynchronous Concurrent Exec Elapsed Time: {time2 - time1} seconds"
             ,f"for successful retrieval of {len(outcomes_success)} entities"
     )
