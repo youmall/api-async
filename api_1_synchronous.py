@@ -1,4 +1,4 @@
-''' Synchronous Exec '''
+''' Synchronous Execution '''
 import time
 from collections import namedtuple
 from requests.exceptions import HTTPError
